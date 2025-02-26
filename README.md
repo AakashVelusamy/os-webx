@@ -18,16 +18,15 @@ WebX is a high-performance multithreaded web proxy that implements key operating
 make
 ./bin/webx   # Run the server
 ./bin/client # Run the client
-
+```
 
 ## Simple Test (Updated ✅)
-Starting WebX Proxy Server...
-Server listening on port 8080...
-Received: Hello from client!
+Starting WebX Proxy Server... <br>
+Server listening on port 8080... <br>
+Received: Hello from client! <br>
 
-Connected to server!
-Server response: HTTP/1.1 200 OK
-Content-Type: text/plain
+Connected to server! <br>
+Server response: HTTP/1.1 200 OK <br>
+Content-Type: text/plain <br>
 
-Hello from WebX!
-
+Hello from WebX! 
