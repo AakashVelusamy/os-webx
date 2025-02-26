@@ -7,9 +7,7 @@ WebX is a high-performance multithreaded web proxy that implements key operating
 - ✅ **Basic client-server connection established using sockets.**  
 - ✅ **Thread pool implemented** for handling multiple client requests efficiently.  
 - ✅ **LRU caching mechanism** to store frequently accessed web pages.  
-- ✅ **Simple functionality testing (no security tests).**  
-- ✅ **Structured to be implemented within 10 days.**  
-- ✅ **Finalized fixed project structure (unchanged for 10 days).**  
+- ✅ **Finalized fixed project structure.**  
 - ✅ **Client successfully connected and received response from server.**  
 - ✅ **Future implementation: Parsing locally stored HTML files.**  
 
