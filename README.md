@@ -1,7 +1,7 @@
 # WebX - Multithreaded Web Proxy
 
 ## Overview
-WebX is a high-performance multithreaded web proxy that implements key operating system concepts such as **sockets, multithreading, synchronization, memory management, and semaphores.** It is designed for efficiency and scalability while handling multiple client requests.
+WebX is a high-performance multithreaded web proxy that implements key operating system concepts such as **sockets, multithreading, process scheduling, thread synchronization, and memory management.** It is designed for efficiency and scalability while handling multiple client requests.
 
 ## Features (Updated ✅)
 - ✅ **Basic client-server connection established using sockets.**  
