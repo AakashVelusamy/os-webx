@@ -21,6 +21,7 @@ make
 ```
 
 ## Simple Test (Updated ✅)
+```
 Starting WebX Proxy Server... <br>
 Server listening on port 8080... <br>
 Received: Hello from client! <br>
@@ -30,3 +31,4 @@ Server response: HTTP/1.1 200 OK <br>
 Content-Type: text/plain <br>
 
 Hello from WebX! 
+```
