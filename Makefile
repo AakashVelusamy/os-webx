@@ -14,12 +14,11 @@ $(shell mkdir -p $(OBJ_DIR) $(BIN_DIR))
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
-# Executables
+# Executable
 SERVER_BIN = $(BIN_DIR)/webx
-CLIENT_BIN = $(BIN_DIR)/client
 
-# Default target (build both server and client)
-all: $(SERVER_BIN) $(CLIENT_BIN)
+# Default target (build server)
+all: $(SERVER_BIN)
 
 # Build the main server executable
 $(SERVER_BIN): $(OBJS)
@@ -29,13 +28,9 @@ $(SERVER_BIN): $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Build the client separately
-$(CLIENT_BIN): $(OBJ_DIR)/client.o
-	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/client.o -o $(CLIENT_BIN)
-
 # Clean up compiled files
 clean:
-	rm -rf $(OBJ_DIR)/*.o $(SERVER_BIN) $(CLIENT_BIN)
+	rm -rf $(OBJ_DIR)/*.o $(SERVER_BIN)
 
 .PHONY: clean all
 
