@@ -20,13 +20,13 @@ make
 
 ## Simple Test (Updated ✅)
 ```
-Starting WebX Proxy Server... <br>
-Server listening on port 8080... <br>
-Received: Hello from client! <br>
+Starting WebX Proxy Server... 
+Server listening on port 8080... 
+Received: Hello from client! 
 
-Connected to server! <br>
-Server response: HTTP/1.1 200 OK <br>
-Content-Type: text/plain <br>
+Connected to server! 
+Server response: HTTP/1.1 200 OK 
+Content-Type: text/plain 
 
 Hello from WebX! 
 ```
