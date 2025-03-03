@@ -1,26 +1,24 @@
 # WebX - Multithreaded Web Proxy
 
-Overview
+### Overview
 WebX is a high-performance multithreaded web proxy that implements key operating system concepts such as **sockets, multithreading, process scheduling, thread synchronization, and memory management.** It is designed for efficiency and scalability while handling multiple client requests.
 
-Features (Updated ✅)
+### Features (Updated ✅)
+- ✅ **Finalized fixed project structure.**  
 - ✅ **Basic client-server connection established using sockets.**  
 - ✅ **Thread pool implemented** for handling multiple client requests efficiently.  
 - ✅ **LRU caching mechanism** to store frequently accessed web pages.  
 - ✅ **Proxy server now supports real websites!**  
 - ✅ **Successfully handles HTTP requests and forwards them to the intended destination.**  
 - ✅ **Correctly parses and retrieves web pages from external servers.**  
-- ✅ **Finalized fixed project structure.**  
-- ✅ **Client successfully connected and received response from server.**  
-- ✅ **Future implementation: Enhanced caching and HTTPS support.**  
 
-Compilation & Execution (Updated ✅)
+### Compilation & Execution (Updated ✅)
 ```sh
 make
 ./bin/webx   # Run the server
 ./bin/client # Run the client
 ```
-Simple Test (Updated ✅)
+### Simple Test (Updated ✅)
 ```
 # Start the server
 ./bin/webx
@@ -28,7 +26,7 @@ Simple Test (Updated ✅)
 # Test with cURL as a client
 curl -x http://localhost:8080 http://example.com
 ```
-Server Output
+#### Server Output
 ```
 Starting WebX Proxy Server...
 Server listening on port 8080...
@@ -39,7 +37,7 @@ User-Agent: curl/8.5.0
 Accept: */*
 Proxy-Connection: Keep-Alive
 ```
-Client Output
+#### Client Output
 ```
 <!doctype html>
 <html>
@@ -52,7 +50,8 @@ Client Output
 </head>
 </html>
 ```
-Next Steps
-	• 🔜 Enhance caching for better performance.
-	• 🔜 Implement support for HTTPS requests (CONNECT method).
-	• 🔜 Improve logging and debugging features.
+### Next Steps
+
+- 🔜 Enhance caching for better performance.
+- 🔜 Implement support for HTTPS requests (CONNECT method).
+- 🔜 Improve logging and debugging features.
