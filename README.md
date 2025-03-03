@@ -19,17 +19,17 @@ Compilation & Execution (Updated ✅)
 make
 ./bin/webx   # Run the server
 ./bin/client # Run the client
-
+```
 Simple Test (Updated ✅)
-
+```
 # Start the server
 ./bin/webx
 
 # Test with cURL as a client
 curl -x http://localhost:8080 http://example.com
-
+```
 Server Output
-
+```
 Starting WebX Proxy Server...
 Server listening on port 8080...
 Received Request:
@@ -38,9 +38,9 @@ Host: example.com
 User-Agent: curl/8.5.0
 Accept: */*
 Proxy-Connection: Keep-Alive
-
+```
 Client Output
-
+```
 <!doctype html>
 <html>
 <head>
@@ -51,7 +51,7 @@ Client Output
     ...
 </head>
 </html>
-
+```
 Next Steps
 	• 🔜 Enhance caching for better performance.
 	• 🔜 Implement support for HTTPS requests (CONNECT method).
