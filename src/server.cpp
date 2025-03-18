@@ -1,6 +1,8 @@
+#include <sstream>  
 #include "../include/definitions.h"
 #include "../include/server.h"
 #include <netdb.h>  // Required for gethostbyname()
+#include <fcntl.h>
 
 void start_server() {
     int server_fd, client_fd;
@@ -26,7 +28,7 @@ void start_server() {
         exit(EXIT_FAILURE);
     }
 
-    cout << "Server listening on port " << PORT << "..." << endl;
+    cout << "WebX Proxy Server listening on port " << PORT << "..." << endl;
 
     while (true) {
         if ((client_fd = accept(server_fd, (struct sockaddr*)&address, &addrlen)) < 0) {
@@ -35,13 +37,15 @@ void start_server() {
         }
 
         pthread_t thread_id;
-        pthread_create(&thread_id, NULL, handle_client, (void*)&client_fd);
+        int* client_sock_ptr = new int(client_fd); // Allocate memory to avoid race conditions
+        pthread_create(&thread_id, NULL, handle_client, (void*)client_sock_ptr);
         pthread_detach(thread_id);
     }
 }
 
 void* handle_client(void* client_socket) {
     int sock = *(int*)client_socket;
+    delete (int*)client_socket; // Free memory
     char buffer[8192] = {0};
 
     int bytes_received = recv(sock, buffer, sizeof(buffer), 0);
@@ -54,6 +58,18 @@ void* handle_client(void* client_socket) {
     string request(buffer, bytes_received);
     cout << "Received Request:\n" << request << endl;
 
+    // Extract the first word (method) of the request
+    istringstream request_stream(request);
+    string method, url, http_version;
+    request_stream >> method >> url >> http_version;
+
+    // Handle HTTPS Tunneling (CONNECT method)
+    if (method == "CONNECT") {
+        handle_https_tunnel(sock, url);
+        return NULL;
+    }
+
+    // Handle HTTP Proxying (GET, POST, etc.)
     string host = extract_host(request);
     if (host.empty()) {
         cerr << "Invalid HTTP request (no host found)" << endl;
@@ -82,6 +98,62 @@ void* handle_client(void* client_socket) {
     return NULL;
 }
 
+// ✅ **Function to Handle HTTPS Tunneling**
+void handle_https_tunnel(int client_socket, const string& url) {
+    // Parse the destination host and port from URL
+    size_t colon_pos = url.find(':');
+    string hostname = url.substr(0, colon_pos);
+    int port = stoi(url.substr(colon_pos + 1));
+
+    int remote_socket = connect_to_remote_server(hostname, port);
+    if (remote_socket < 0) {
+        cerr << "Failed to connect to " << hostname << endl;
+        close(client_socket);
+        return;
+    }
+
+    // Send "200 Connection Established" response to the client
+    string response = "HTTP/1.1 200 Connection Established\r\n\r\n";
+    send(client_socket, response.c_str(), response.size(), 0);
+
+    // Relay encrypted data between client and remote server
+    relay_data(client_socket, remote_socket);
+
+    close(client_socket);
+    close(remote_socket);
+}
+
+// ✅ **Function to Relay Data Between Client and Remote Server**
+void relay_data(int client_socket, int remote_socket) {
+    char buffer[8192];
+    fd_set read_fds;
+    int max_fd = max(client_socket, remote_socket) + 1;
+
+    while (true) {
+        FD_ZERO(&read_fds);
+        FD_SET(client_socket, &read_fds);
+        FD_SET(remote_socket, &read_fds);
+
+        if (select(max_fd, &read_fds, NULL, NULL, NULL) < 0) {
+            cerr << "select() failed\n";
+            break;
+        }
+
+        if (FD_ISSET(client_socket, &read_fds)) {
+            int bytes = recv(client_socket, buffer, sizeof(buffer), 0);
+            if (bytes <= 0) break;
+            send(remote_socket, buffer, bytes, 0);
+        }
+
+        if (FD_ISSET(remote_socket, &read_fds)) {
+            int bytes = recv(remote_socket, buffer, sizeof(buffer), 0);
+            if (bytes <= 0) break;
+            send(client_socket, buffer, bytes, 0);
+        }
+    }
+}
+
+// ✅ **Helper Functions**
 string extract_host(const string& request) {
     size_t start = request.find("Host: ");
     if (start == string::npos) return "";
@@ -117,4 +189,3 @@ int connect_to_remote_server(const string& hostname, int port) {
 
     return sock;
 }
-
