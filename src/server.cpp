@@ -1,7 +1,7 @@
 #include <sstream>  
 #include "../include/definitions.h"
 #include "../include/server.h"
-#include <netdb.h>  // Required for gethostbyname()
+#include <netdb.h>  
 #include <fcntl.h>
 
 void start_server() {
@@ -37,7 +37,7 @@ void start_server() {
         }
 
         pthread_t thread_id;
-        int* client_sock_ptr = new int(client_fd); // Allocate memory to avoid race conditions
+        int* client_sock_ptr = new int(client_fd);
         pthread_create(&thread_id, NULL, handle_client, (void*)client_sock_ptr);
         pthread_detach(thread_id);
     }
@@ -45,7 +45,7 @@ void start_server() {
 
 void* handle_client(void* client_socket) {
     int sock = *(int*)client_socket;
-    delete (int*)client_socket; // Free memory
+    delete (int*)client_socket; 
     char buffer[8192] = {0};
 
     int bytes_received = recv(sock, buffer, sizeof(buffer), 0);
@@ -58,18 +58,15 @@ void* handle_client(void* client_socket) {
     string request(buffer, bytes_received);
     cout << "Received Request:\n" << request << endl;
 
-    // Extract the first word (method) of the request
     istringstream request_stream(request);
     string method, url, http_version;
     request_stream >> method >> url >> http_version;
 
-    // Handle HTTPS Tunneling (CONNECT method)
     if (method == "CONNECT") {
         handle_https_tunnel(sock, url);
         return NULL;
     }
 
-    // Handle HTTP Proxying (GET, POST, etc.)
     string host = extract_host(request);
     if (host.empty()) {
         cerr << "Invalid HTTP request (no host found)" << endl;
@@ -84,10 +81,8 @@ void* handle_client(void* client_socket) {
         return NULL;
     }
 
-    // Send the full request to the remote server
     send(remote_server_fd, request.c_str(), request.length(), 0);
 
-    // Relay response back to client
     char response[8192];
     while ((bytes_received = recv(remote_server_fd, response, sizeof(response), 0)) > 0) {
         send(sock, response, bytes_received, 0);
@@ -98,9 +93,7 @@ void* handle_client(void* client_socket) {
     return NULL;
 }
 
-// ✅ **Function to Handle HTTPS Tunneling**
 void handle_https_tunnel(int client_socket, const string& url) {
-    // Parse the destination host and port from URL
     size_t colon_pos = url.find(':');
     string hostname = url.substr(0, colon_pos);
     int port = stoi(url.substr(colon_pos + 1));
@@ -112,18 +105,15 @@ void handle_https_tunnel(int client_socket, const string& url) {
         return;
     }
 
-    // Send "200 Connection Established" response to the client
     string response = "HTTP/1.1 200 Connection Established\r\n\r\n";
     send(client_socket, response.c_str(), response.size(), 0);
 
-    // Relay encrypted data between client and remote server
     relay_data(client_socket, remote_socket);
 
     close(client_socket);
     close(remote_socket);
 }
 
-// ✅ **Function to Relay Data Between Client and Remote Server**
 void relay_data(int client_socket, int remote_socket) {
     char buffer[8192];
     fd_set read_fds;
@@ -153,7 +143,6 @@ void relay_data(int client_socket, int remote_socket) {
     }
 }
 
-// ✅ **Helper Functions**
 string extract_host(const string& request) {
     size_t start = request.find("Host: ");
     if (start == string::npos) return "";
