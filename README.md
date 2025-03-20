@@ -14,7 +14,7 @@ WebX is a web proxy server built in C++ that combines important concepts like mu
 
 | Feature                  | Description                                                                                     |
 |--------------------------|-------------------------------------------------------------------------------------------------|
-| **Multithreading**       | Runs multiple threads at once to handle client requests without delays.                         |
+| **Multithreading**       | Runs multiple threads at once to handle client requests without delay.                         |
 | **Thread Pool Implementation**          | Keeps a set number of threads ready to pick up and process client connections.                  |
 | **Thread Synchronization** | Uses tools like mutexes and semaphores to keep threads working together safely.                |
 | **Cache Management**     | Saves recent content using a Least Recently Used (LRU) system—when full, it drops the oldest entry to make room for new ones, tracked with a map and list. |
@@ -41,7 +41,7 @@ Multithreading is the heart of WebX’s ability to stay quick. Each client gets 
 | **What It Is**          | A collection of pre-allocated threads that execute concurrently to process client requests efficiently.  |
 | **Why It Matters**      | Mitigates the overhead associated with creating threads dynamically, enhancing scalability and resource utilization. |
 | **How I Used It**       | Configured a fixed number of worker threads (five by default) to grab client sockets from a shared queue.|
-| **OS Tie-In**           | Reflects the OS’s role in thread scheduling, context switching, and resource allocation.                |
+| **OS Tie-In**           | Reflects the role of the OS in thread scheduling, context switching, and resource allocation.                |
 
 The thread pool means we don’t start fresh threads every time - a group of five are always ready. They pick up sockets from a queue, keeping the CPU busy but under control.
 
@@ -77,7 +77,7 @@ The LRU cache saves the last five responses we’ve seen. The unordered map lets
 | **What It Is**          | A framework for network communication using sockets to connect clients, proxies, and remote servers.   |
 | **Why It Matters**      | Enables the proxy to serve as an intermediary, facilitating seamless data exchange over networks.      |
 | **How I Used It**       | Used TCP sockets to link clients to the proxy and the proxy to servers, passing data back and forth.   |
-| **OS Tie-In**           | Depends on the OS’s network stack and file descriptor management for robust communication.             |
+| **OS Tie-In**           | Depends on the OS network stack and file descriptor management for smooth communication.             |
 
 Sockets let WebX connect everything. TCP sockets handle the back-and-forth—whether it’s regular HTTP or HTTPS tunnels - while the OS keeps the data moving without us worrying about the details.
 
