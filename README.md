@@ -109,6 +109,41 @@ This flow pulls all our OS ideas together into something that works.
 
 ---
 
+## Execution 
+### Server Terminal
+```
+./bin/webx   
+```
+### Client Terminal
+```
+curl -x http://localhost:8080 http://example.com
+```
+
+### Server Output
+```
+Starting WebX Proxy Server...
+Server listening on port 8080...
+Received Request:
+GET http://example.com/ HTTP/1.1
+Host: example.com
+User-Agent: curl/8.5.0
+Accept: */*
+Proxy-Connection: Keep-Alive
+```
+### Client Output
+```
+<!doctype html>
+<html>
+<head>
+    <title>Example Domain</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    ...
+</head>
+</html>
+```
+---
 ## Conclusion
 
 WebX is more than just a proxy - it’s our way of showing how operating system ideas play out in real life. We took multithreading, synchronization, sockets, caching, and resource management from our coursework and turned them into a working server that handles web traffic. The thread pool and cache make it quick, while sockets and synchronization keep it steady when things get busy. We learned that these aren’t just notes - they are tools that help us to build something that really helps out.
