@@ -146,7 +146,7 @@ Proxy-Connection: Keep-Alive
 ---
 ## Conclusion
 
-WebX is more than just a proxy - it’s our way of showing how operating system ideas play out in real life. We took multithreading, synchronization, sockets, caching, and resource management from our coursework and turned them into a working server that handles web traffic. The thread pool and cache make it quick, while sockets and synchronization keep it steady when things get busy. We learned that these aren’t just notes - they are tools that help us to build something that really helps out.
+WebX is more than just a proxy - it’s our way of showing how operating system ideas play out in real life. We took multithreading, synchronization, sockets, cache management, and resource management from our coursework and turned them into a working server that handles web traffic. The thread pool and cache make it quick, while sockets and synchronization keep it steady when things get busy. We learned that these aren’t just notes - they are tools that help us to build something that really helps out.
 
 ---
 
