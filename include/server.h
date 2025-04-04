@@ -16,4 +16,4 @@ void relay_data(int client_socket, int remote_socket);
 string extract_host(const string& request);
 int connect_to_remote_server(const string& hostname, int port);
 
-#endif // SERVER_H
+#endif 

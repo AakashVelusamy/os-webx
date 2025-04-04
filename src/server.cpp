@@ -1,8 +1,15 @@
 #include <sstream>  
 #include "../include/definitions.h"
 #include "../include/server.h"
-#include <netdb.h>  // Required for gethostbyname()
+#include "../include/cache.h" // Include cache
+#include <netdb.h>  
 #include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
+#include <iostream>
+#include <pthread.h>
+
+using namespace std;
 
 void start_server() {
     int server_fd, client_fd;
@@ -37,7 +44,7 @@ void start_server() {
         }
 
         pthread_t thread_id;
-        int* client_sock_ptr = new int(client_fd); // Allocate memory to avoid race conditions
+        int* client_sock_ptr = new int(client_fd);
         pthread_create(&thread_id, NULL, handle_client, (void*)client_sock_ptr);
         pthread_detach(thread_id);
     }
@@ -45,7 +52,7 @@ void start_server() {
 
 void* handle_client(void* client_socket) {
     int sock = *(int*)client_socket;
-    delete (int*)client_socket; // Free memory
+    delete (int*)client_socket; 
     char buffer[8192] = {0};
 
     int bytes_received = recv(sock, buffer, sizeof(buffer), 0);
@@ -58,18 +65,15 @@ void* handle_client(void* client_socket) {
     string request(buffer, bytes_received);
     cout << "Received Request:\n" << request << endl;
 
-    // Extract the first word (method) of the request
     istringstream request_stream(request);
     string method, url, http_version;
     request_stream >> method >> url >> http_version;
 
-    // Handle HTTPS Tunneling (CONNECT method)
     if (method == "CONNECT") {
         handle_https_tunnel(sock, url);
         return NULL;
     }
 
-    // Handle HTTP Proxying (GET, POST, etc.)
     string host = extract_host(request);
     if (host.empty()) {
         cerr << "Invalid HTTP request (no host found)" << endl;
@@ -77,6 +81,15 @@ void* handle_client(void* client_socket) {
         return NULL;
     }
 
+    string cached_response;
+    if (cache_get(url, cached_response)) {
+        cout << "Cache Hit: Serving response from cache." << endl;
+        send(sock, cached_response.c_str(), cached_response.length(), 0);
+        close(sock);
+        return NULL;
+    }
+
+    cout << "Cache Miss: Fetching from remote server." << endl;
     int remote_server_fd = connect_to_remote_server(host, 80);
     if (remote_server_fd < 0) {
         cerr << "Failed to connect to remote server" << endl;
@@ -84,23 +97,22 @@ void* handle_client(void* client_socket) {
         return NULL;
     }
 
-    // Send the full request to the remote server
     send(remote_server_fd, request.c_str(), request.length(), 0);
 
-    // Relay response back to client
     char response[8192];
+    string full_response;
     while ((bytes_received = recv(remote_server_fd, response, sizeof(response), 0)) > 0) {
+        full_response.append(response, bytes_received);
         send(sock, response, bytes_received, 0);
     }
 
+    cache_put(url, full_response); // Store response in cache
     close(remote_server_fd);
     close(sock);
     return NULL;
 }
 
-// ✅ **Function to Handle HTTPS Tunneling**
 void handle_https_tunnel(int client_socket, const string& url) {
-    // Parse the destination host and port from URL
     size_t colon_pos = url.find(':');
     string hostname = url.substr(0, colon_pos);
     int port = stoi(url.substr(colon_pos + 1));
@@ -112,18 +124,15 @@ void handle_https_tunnel(int client_socket, const string& url) {
         return;
     }
 
-    // Send "200 Connection Established" response to the client
     string response = "HTTP/1.1 200 Connection Established\r\n\r\n";
     send(client_socket, response.c_str(), response.size(), 0);
 
-    // Relay encrypted data between client and remote server
     relay_data(client_socket, remote_socket);
 
     close(client_socket);
     close(remote_socket);
 }
 
-// ✅ **Function to Relay Data Between Client and Remote Server**
 void relay_data(int client_socket, int remote_socket) {
     char buffer[8192];
     fd_set read_fds;
@@ -153,20 +162,21 @@ void relay_data(int client_socket, int remote_socket) {
     }
 }
 
-// ✅ **Helper Functions**
 string extract_host(const string& request) {
-    size_t start = request.find("Host: ");
-    if (start == string::npos) return "";
-
-    start += 6;
-    size_t end = request.find("\r\n", start);
-    return request.substr(start, end - start);
+    istringstream req_stream(request);
+    string line;
+    while (getline(req_stream, line)) {
+        if (line.find("Host:") == 0) {
+            return line.substr(6); // Extract the hostname from the header
+        }
+    }
+    return "";
 }
 
-int connect_to_remote_server(const string& hostname, int port) {
-    struct hostent* host = gethostbyname(hostname.c_str());
-    if (!host) {
-        cerr << "Failed to resolve hostname: " << hostname << endl;
+int connect_to_remote_server(const string& host, int port) {
+    struct hostent* server = gethostbyname(host.c_str());
+    if (!server) {
+        cerr << "No such host: " << host << endl;
         return -1;
     }
 
@@ -179,7 +189,7 @@ int connect_to_remote_server(const string& hostname, int port) {
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
-    memcpy(&server_addr.sin_addr, host->h_addr, host->h_length);
+    memcpy(&server_addr.sin_addr, server->h_addr, server->h_length);
 
     if (connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("Connection to remote server failed");

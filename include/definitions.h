@@ -13,13 +13,12 @@
 
 using namespace std;
 
-// Server Config
 #define PORT 8080
 #define BACKLOG 10
 #define MAX_THREADS 5
 #define CACHE_SIZE 5
 #define BUFFER_SIZE 16384
-// Function Prototypes
+
 void start_server();
 void* handle_client(void* client_socket);
 void initialize_thread_pool();

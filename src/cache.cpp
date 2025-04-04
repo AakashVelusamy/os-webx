@@ -1,27 +1,63 @@
-#include "../include/definitions.h"
+#include "../include/cache.h"
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <iostream>
 
-unordered_map<string, string> cache;
-vector<string> cache_order;
+using namespace std;
+
+unordered_map<string, string> cache_map;  // Stores URL -> Response
+vector<string> cache_order;               // Stores order of cache entries
+
+const size_t CACHE_SIZE = 10; // Define max cache size
 
 void initialize_cache() {
-    cache.clear();
+    cache_map.clear();
     cache_order.clear();
 }
 
-string get_from_cache(string url) {
-    if (cache.find(url) != cache.end()) {
-        return cache[url];
+// Function to check if a URL is in cache and get its response
+bool cache_get(const string& url, string& response) {
+    auto it = cache_map.find(url);
+    if (it != cache_map.end()) {
+        response = it->second;
+        
+        // Move accessed URL to the back (MRU)
+        auto vec_it = find(cache_order.begin(), cache_order.end(), url);
+        if (vec_it != cache_order.end()) {
+            cache_order.erase(vec_it);
+            cache_order.push_back(url);
+        }
+
+        return true; // Cache hit
     }
-    return "";
+    return false; // Cache miss
 }
 
-void add_to_cache(string url, string content) {
-    if (cache.size() >= CACHE_SIZE) {
-        string oldest = cache_order.front();
-        cache.erase(oldest);
-        cache_order.erase(cache_order.begin());
+// Function to store a new response in cache
+void cache_put(const string& url, const string& content) {
+    // Remove existing entry if present
+    auto it = find(cache_order.begin(), cache_order.end(), url);
+    if (it != cache_order.end()) {
+        cache_order.erase(it);
     }
 
-    cache[url] = content;
+    // Evict the oldest entry if cache is full
+    if (cache_order.size() >= CACHE_SIZE) {
+        string oldest = cache_order.front();
+        cache_order.erase(cache_order.begin());
+        cache_map.erase(oldest);
+    }
+
+    // Add new entry
+    cache_map[url] = content;
     cache_order.push_back(url);
 }
+
+// Function to clear the cache
+void clear_cache() {
+    cache_map.clear();
+    cache_order.clear();
+}
+
