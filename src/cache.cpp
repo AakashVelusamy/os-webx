@@ -1,7 +1,7 @@
+#include "../include/definitions.h"
 #include "../include/cache.h"
 #include <unordered_map>
 #include <vector>
-#include <string>
 #include <algorithm>
 #include <iostream>
 
@@ -9,8 +9,6 @@ using namespace std;
 
 unordered_map<string, string> cache_map;  // Stores URL -> Response
 vector<string> cache_order;               // Stores order of cache entries
-
-const size_t CACHE_SIZE = 10; // Define max cache size
 
 void initialize_cache() {
     cache_map.clear();
@@ -22,7 +20,7 @@ bool cache_get(const string& url, string& response) {
     auto it = cache_map.find(url);
     if (it != cache_map.end()) {
         response = it->second;
-        
+
         // Move accessed URL to the back (MRU)
         auto vec_it = find(cache_order.begin(), cache_order.end(), url);
         if (vec_it != cache_order.end()) {
@@ -55,7 +53,7 @@ void cache_put(const string& url, const string& content) {
     cache_order.push_back(url);
 }
 
-// Function to clear the cache
+// Clear cache
 void clear_cache() {
     cache_map.clear();
     cache_order.clear();

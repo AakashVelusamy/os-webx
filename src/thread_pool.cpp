@@ -6,7 +6,7 @@ queue<int> client_queue;
 
 void initialize_thread_pool() {
     pthread_mutex_init(&lock, NULL);
-    sem_init(&semaphore, 0, MAX_THREADS);
+    sem_init(&semaphore, 0, 0); // initial value 0
 
     for (int i = 0; i < MAX_THREADS; i++) {
         pthread_t thread;
@@ -32,3 +32,4 @@ void* thread_function(void* arg) {
     }
     return NULL;
 }
+
